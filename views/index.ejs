@@ -1,0 +1,86 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Demo</title>
+  </head>
+  <body>
+    <h1>WELCOME</h1>
+    <p>Hello <span id='name'> <%= name %> </span>!This is a demo site I created using node.js.</p>
+    <p><a href = "/chat">Click here to chat with poeple online</a></p>
+    <p>Meeting rooms we have (not all are real :D) :</p><br>
+    <form>
+      <input type = 'radio' name = 'options' value = 'Yoho' id = '1'> Yoho <br>
+      <input type = 'radio' name = 'options' value = 'Stratacona' id = '2'> Stratacona <br>
+      <input type = 'radio' name = 'options' value = 'Sandbox' id = '3'> Sandbox <br>
+      <input type = 'radio' name = 'options' value = 'Thor' id = '4'> Thor <br>
+      <input type = 'radio' name = 'options' value = 'Thor2' id = '5'> Thor2 <br>
+      <input type = 'radio' name = 'options' value = 'Thor3' id = '6'> Thor3 <br>
+      <input type = 'radio' name = 'options' value = 'Thor4' id = '7'> Thor4 <br>
+      <input type = 'radio' name = 'options' value = 'Thor5' id = '8'> Thor5 <br>
+      <input type = 'radio' name = 'options' value = 'Thor6' id = '9'> Thor6 <br>
+      <input type = 'radio' name = 'options' value = 'Thor7' id = '10'> Thor7 <br>
+      <input type = 'radio' name = 'options' value = 'Thor8' id = '11'> Thor8 <br>
+      <input type = 'radio' name = 'options' value = 'Thor9' id = '12'> Thor9 <br>
+      <input type = 'radio' name = 'options' value = 'Thor10' id = '13'> Thor10 <br>
+      <input type = 'radio' name = 'options' value = 'Thor11' id = '14'> Thor11 <br>
+      <input type = 'radio' name = 'options' value = 'Thor12' id = '15'> Thor12 <br>
+      <input type = 'radio' name = 'options' value = 'Thor13' id = '16'> Thor13 <br>
+      <input type = 'radio' name = 'options' value = 'Thor14' id = '17'> Thor14 <br>
+      <button type = 'button' value = 'Book room'>Book Room</button><br>
+    </form><br><br>
+    Rooms currently booked<br>
+    <ul id="list"></ul>
+    <h1> This site is under construction </h1>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+    <script>
+      $(function(){
+        var socket = io();
+        var flag = false;
+        var newElement;
+
+        $('form').on('click','button',function(){
+          if(!$('input[name=options]').is(':checked'))
+            return false;
+          var val = $('input[name=options]:checked').val();
+          var id = $('input[name=options]:checked').attr('id');
+          var user = $('#name').html();
+          var msg = val + ": Booked by " + user + "?"+id;
+          flag = true;
+          socket.emit('room booked', msg);
+          $('input[name=options]:checked').prop('checked', false);
+          return false;
+        });
+
+        $('#list').on('click','button',function(){
+            var id = $(this).attr('id');
+            id = id.substring(4);
+            socket.emit('delete booking', id);
+            $(this).remove();
+        });
+
+        socket.on('room booked', function(msg){
+          var inx = msg.indexOf('?');
+          var id_tag = msg.substring(inx+1);
+          msg = msg.substring(0, inx);
+          var newElement = $('<li id="l_'+id_tag+'">').text(msg);
+          $('#list').append(newElement);
+          if(flag){
+            var r= $('<Button type = "button" id= "btn_' + id_tag + '" class = "cancel">Cancel Bookings</Button>');
+            newElement = newElement.append(r);
+            flag = false;
+          }
+          var id = "#" + id_tag;
+          $(id).hide();
+        });
+
+        socket.on('delete booking', function(msg){
+          var id = '#' + msg;
+          var id2 = "#l_" + msg;
+          $(id).show();
+          $(id2).remove();
+        });
+      });
+    </script>
+  </body>
+</html>
